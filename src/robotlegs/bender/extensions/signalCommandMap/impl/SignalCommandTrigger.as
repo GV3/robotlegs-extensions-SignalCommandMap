@@ -81,6 +81,21 @@ package robotlegs.bender.extensions.signalCommandMap.impl
 			_signal.add(routePayloadToCommands);
 		}
 
+        private function mapSignal(signal:ISignal):void {
+            unmapSignal();
+            _injector.map(ISignal, 'trigger').toValue(signal);
+
+        }
+
+        private function unmapSignal():void {
+
+            const hasMapping:Boolean = _injector.hasDirectMapping(ISignal, 'trigger');
+
+            if (hasMapping){
+                _injector.unmap(ISignal, 'trigger');
+            }
+        }
+
 		/**
 		 * @inheritDoc
 		 */
@@ -101,8 +116,11 @@ package robotlegs.bender.extensions.signalCommandMap.impl
 
 		private function routePayloadToCommands(... valueObjects):void
 		{
-			const payload:CommandPayload = new CommandPayload(valueObjects, _signal.valueClasses);
+            mapSignal(_signal);
+            const payload:CommandPayload = new CommandPayload(valueObjects, _signal.valueClasses);
 			_executor.executeCommands(_mappings.getList(), payload);
-		}
+                        unmapSignal();
+
+        }
 	}
 }
