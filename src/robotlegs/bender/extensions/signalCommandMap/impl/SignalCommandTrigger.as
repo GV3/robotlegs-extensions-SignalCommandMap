@@ -7,18 +7,20 @@
 
 package robotlegs.bender.extensions.signalCommandMap.impl
 {
-	import org.osflash.signals.ISignal;
+import flash.utils.getQualifiedClassName;
 
-	import robotlegs.bender.framework.api.IInjector;
-	import robotlegs.bender.extensions.commandCenter.api.ICommandExecutor;
-	import robotlegs.bender.extensions.commandCenter.api.ICommandTrigger;
-	import robotlegs.bender.extensions.commandCenter.impl.CommandExecutor;
-	import robotlegs.bender.extensions.commandCenter.impl.CommandMapper;
-	import robotlegs.bender.extensions.commandCenter.impl.CommandMappingList;
-	import robotlegs.bender.extensions.commandCenter.api.CommandPayload;
-	import robotlegs.bender.framework.api.ILogger;
+import org.osflash.signals.ISignal;
 
-	/**
+import robotlegs.bender.extensions.commandCenter.api.CommandPayload;
+import robotlegs.bender.extensions.commandCenter.api.ICommandExecutor;
+import robotlegs.bender.extensions.commandCenter.api.ICommandTrigger;
+import robotlegs.bender.extensions.commandCenter.impl.CommandExecutor;
+import robotlegs.bender.extensions.commandCenter.impl.CommandMapper;
+import robotlegs.bender.extensions.commandCenter.impl.CommandMappingList;
+import robotlegs.bender.framework.api.IInjector;
+import robotlegs.bender.framework.api.ILogger;
+
+/**
 	 * @private
 	 */
 	public class SignalCommandTrigger implements ICommandTrigger
@@ -81,20 +83,6 @@ package robotlegs.bender.extensions.signalCommandMap.impl
 			_signal.add(routePayloadToCommands);
 		}
 
-        private function mapSignal(signal:ISignal):void {
-            unmapSignal();
-            _injector.map(ISignal, 'trigger').toValue(signal);
-
-        }
-
-        private function unmapSignal():void {
-
-            const hasMapping:Boolean = _injector.hasDirectMapping(ISignal, 'trigger');
-
-            if (hasMapping){
-                _injector.unmap(ISignal, 'trigger');
-            }
-        }
 
 		/**
 		 * @inheritDoc
@@ -116,10 +104,10 @@ package robotlegs.bender.extensions.signalCommandMap.impl
 
 		private function routePayloadToCommands(... valueObjects):void
 		{
-            mapSignal(_signal);
+            var signalClassName:String = getQualifiedClassName(_signal);
+
             const payload:CommandPayload = new CommandPayload(valueObjects, _signal.valueClasses);
-			_executor.executeCommands(_mappings.getList(), payload);
-                        unmapSignal();
+			_executor.executeCommands(_mappings.getList(), payload, signalClassName);
 
         }
 	}
